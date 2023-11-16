@@ -9,7 +9,7 @@ USE_OMP               = FALSE
 USE_CUDA              = FALSE
 USE_TURBULENT_FORCING = TRUE
 USE_FAST_FORCE        = FALSE
-USE_VELOCITY          = FALSE # broken atm
+USE_VELOCITY          = FALSE
 
 COMP	   = gcc
 DEBUG	   = FALSE
