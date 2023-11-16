@@ -19,6 +19,27 @@ amrex::Real* TurbulentForcing::forcedata;
 
 
 void
+calc_forcingmagic(amrex::Real urms, amrex::Real &forcing_time_scale_min  , amrex::Real &forcing_time_scale_max , amrex::Real &force_scale, amrex::Real Lx, amrex::Real Ly, amrex::Real Lz)
+{
+    using namespace amrex;
+
+    Real force_scale_ref;
+    const Real force_scale_rectangular_ref(1.41E+07), force_scale_cubic_ref(1.47E+07);
+    const Real force_length_ref(0.0264), force_vel_ref(3.27);
+    const Real force_time_scale_min_ref(1.21E-03), force_time_scale_max_ref(2.42E-03);
+
+    // decides force_scale_ref depending on if the domain is cubic or rectangular 
+    if (Lx == Lz)
+	force_scale_ref = force_scale_rectangular_ref;
+    else
+	force_scale_ref = force_scale_cubic_ref;
+    
+    forcing_time_scale_min = force_time_scale_min_ref * (force_vel_ref / force_length_ref) * (Lx / urms);
+    forcing_time_scale_max = force_time_scale_max_ref * (force_vel_ref / force_length_ref) * (Lx / urms);	
+    force_scale = force_scale_ref * pow((urms / force_vel_ref),2) * pow((force_length_ref / Lx),3);
+}
+
+void
 TurbulentForcing::init_turbulent_forcing (const amrex::GpuArray<amrex::Real,AMREX_SPACEDIM>& problo, const amrex::GpuArray<amrex::Real,AMREX_SPACEDIM>& probhi)
 {
     using namespace amrex;
@@ -33,6 +54,11 @@ TurbulentForcing::init_turbulent_forcing (const amrex::GpuArray<amrex::Real,AMRE
     Real Lz = probhi[2]-problo[2];
     AMREX_ALWAYS_ASSERT(Lx==Ly);
 
+    // Turbulent Inputs Parameters (for HIT)   
+    int  hack_lz(0), spectrum_type(2), moderate_zero_modes(1);
+    Real forcing_time_scale_min(0.5), forcing_time_scale_max(1.0), force_scale(1.0);
+    Real urms = -1;
+    
     // Read in parameters
     ParmParse pp("turb");
 
@@ -51,9 +77,24 @@ TurbulentForcing::init_turbulent_forcing (const amrex::GpuArray<amrex::Real,AMRE
     verbose = 0;
     pp.query("verbose", verbose);
 
-    // Inputs not yet defined. Could make runtime parameters if desired.
-    int  hack_lz(0), spectrum_type(2), moderate_zero_modes(1);
-    Real forcing_time_scale_min(0.5), forcing_time_scale_max(1.0), force_scale(1.0);
+    pp.query("urms", urms);
+    pp.query("forcing_time_scale_min", forcing_time_scale_min);
+    pp.query("forcing_time_scale_max", forcing_time_scale_max);
+    pp.query("force_scale", force_scale);
+    
+    if(urms != -1) {
+	Print() << "calculating turbulent forcing from a urms of = " << urms << std::endl;
+	calc_forcingmagic(urms, forcing_time_scale_min, forcing_time_scale_max, force_scale, Lx, Ly, Lz);
+    }
+    else if (force_scale != 1.0 && forcing_time_scale_min != 0.5 && forcing_time_scale_max != 1.0) {
+	Print() << " overiding forcing magic, using user defined turbulent scales" << std::endl;
+    }
+    else {
+	Print() << " no rms provided, using defualt turbulent scales" << std::endl;
+    }
+    Print() << " forcing_time_scale_min = " << forcing_time_scale_min << std::endl;
+    Print() << " forcing_time_scale_max = " << forcing_time_scale_max << std::endl;
+    Print() << " force_scale = " << force_scale << std::endl;
 
     // tmp CPU storage that holds everything in one flat arrray
     const int num_elmts=array_size*array_size*array_size;
