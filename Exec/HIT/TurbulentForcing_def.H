@@ -78,6 +78,7 @@ TurbulentForcing::init_turbulent_forcing (const amrex::GpuArray<amrex::Real,AMRE
     pp.query("verbose", verbose);
 
     pp.query("urms", urms);
+    pp.query("hack_lz", hack_lz);
     pp.query("forcing_time_scale_min", forcing_time_scale_min);
     pp.query("forcing_time_scale_max", forcing_time_scale_max);
     pp.query("force_scale", force_scale);

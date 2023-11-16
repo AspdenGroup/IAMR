@@ -51,6 +51,7 @@ ns.scal_diff_coefs = 0.0 # diffusion coefficient for first scalar
 prob.probtype = 100 # probtype = 100 for HIT
  # Turbulent forcing parameters
 turb.nmodes = 4
+turb.hack_lz = 0
 turb.urms = 1 # use rms for automatic forcing calculations
  # overide turbulent forcing terms (only use to skip forcing magic
 #turb.forcing_time_scale_min = 0.
