@@ -1,40 +1,25 @@
-#AMREX_HOME defines the directory in which we will find the AMReX directory
-AMREX_HOME       ?= ../../../amrex
-AMREX_HYDRO_HOME ?= ../../../AMReX-Hydro
-
-#TOP defines the directory in which we will find Source, Exec, etc.
 TOP = ../..
+AMREX_HOME       = ../../Submodules/amrex
+AMREX_HYDRO_HOME = ../../Submodules/AMReX-Hydro
 
-#
 # Variables for the user to set ...
-#
-
-DIM        = 3
-COMP	   = gcc
-DEBUG	   = FALSE
-USE_MPI    = TRUE
-USE_OMP    = FALSE
-
-USE_CUDA = FALSE
-
+DIM                   = 3     # must be 3d for HIT
+USE_MPI               = TRUE
+USE_OMP               = FALSE
+USE_CUDA              = FALSE
 USE_TURBULENT_FORCING = TRUE
 USE_FAST_FORCE        = FALSE
+USE_VELOCITY          = FALSE # broken atm
 
-#TEST=TRUE
-#USE_ASSERTION=TRUE
-
+COMP	   = gcc
+DEBUG	   = FALSE
 PRECISION = DOUBLE
 
 USE_HYPRE = FALSE
 USE_METIS = FALSE
-
-USE_VELOCITY = TRUE
-USE_VELOCITY = FALSE
-
-USE_XBLAS = TRUE
 USE_XBLAS = FALSE
-
 USE_SENSEI_INSITU = FALSE
+#USE_ASSERTION=TRUE
 
 EBASE     = amr
 
